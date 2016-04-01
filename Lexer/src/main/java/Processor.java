@@ -2,8 +2,6 @@
  * Created by airvan21 on 27.03.16.
  */
 
-import antlr.TaskGrammarLexer;
-import antlr.TaskGrammarParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;

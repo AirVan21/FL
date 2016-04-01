@@ -38,9 +38,10 @@ SPACE : [ \r\t\u000C\n]+ -> skip;
 
 /* ============================================================  */
 
-operation : comparison_op | arithmetic_op;
+operation : comparison_op | arithmetic_op | logical_op;
 comparison_op : GT | GE | LT | LE | EQ;
 arithmetic_op : PLUS | MINUS | MULT | DIV | MOD;
+logical_op : AND | OR;
 
 expression : NUMBER | VARIABLE | expression operation expression;
 
