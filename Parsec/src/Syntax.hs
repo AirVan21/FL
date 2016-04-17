@@ -15,7 +15,7 @@ data Expr = Var String
           | Leq Expr Expr
           | And Expr Expr
           | Or Expr Expr
-          deriving (Show)
+          deriving (Eq, Show)
 
 data Statement = Assign Expr Expr
                | IfC Expr Statement Statement 
@@ -23,4 +23,5 @@ data Statement = Assign Expr Expr
                | Read Expr
                | While Expr Statement
                | Semicolon Statement Statement
-               | Skip deriving (Show)
+               | Skip 
+               deriving (Eq, Show)
