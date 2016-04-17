@@ -1,3 +1,4 @@
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.gui.TreeViewer;
 import javax.swing.*;
@@ -18,7 +19,8 @@ public class Printer {
         this.parser = parser;
     }
 
-    public void print() {
+    public void print() throws ParseCancellationException {
+
         ParseTree tree = parser.program();
 
         JFrame frame = new JFrame(title);
