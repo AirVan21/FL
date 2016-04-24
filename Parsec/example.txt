@@ -3,3 +3,5 @@ if x > 1 then read y else skip
 read x; write y; while 10 >= 5 do x:= x + y
 
 x := 7  ; if x <= 20 then write 7 * 2 else read 12 || x
+
+read x; read y; while x > 2 do read x; read u; skip; if x > 2 && y < 3 then read x else skip

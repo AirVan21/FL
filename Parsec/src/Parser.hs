@@ -79,7 +79,7 @@ statement = do
 stmtHelp :: Parser Statement
 stmtHelp = 
     assignSt
-    <|>skipSt
+    <|> skipSt
     <|> readSt
     <|> writeSt
     <|> ifSt
