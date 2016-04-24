@@ -1,4 +1,4 @@
-module Parser (parseExpr) where
+module Parser (parseExpr, optimizeStatement) where
 
 import Syntax
 
@@ -129,3 +129,44 @@ assignSt = do
 
 parseExpr :: String -> Either ParseError Statement
 parseExpr = parse statement ""
+
+calculate :: Expr -> Expr
+calculate (Plus ex (Numeral 0))  = calculate ex
+calculate (Plus (Numeral 0) ex)  = calculate ex
+calculate (Minus ex (Numeral 0)) = calculate ex
+calculate (Minus (Numeral 0) ex) = calculate ex
+calculate (Times ex (Numeral 1)) = calculate ex
+calculate (Times (Numeral 1) ex) = calculate ex
+calculate (Div ex (Numeral 1))   = calculate ex
+
+calculate (Times ex (Numeral 0)) = Numeral 0
+calculate (Times (Numeral 0) ex) = Numeral 0
+calculate (Div (Numeral 0) ex)   = Numeral 0
+
+calculate (Plus  (Numeral x) (Numeral y))  = Numeral (x + y)
+calculate (Minus (Numeral x) (Numeral y))  = Numeral (x - y)
+calculate (Times (Numeral x) (Numeral y))  = Numeral (x * y)
+calculate (Div   (Numeral x) (Numeral y))  = Numeral (div x y)
+calculate (Mod   (Numeral x) (Numeral y))  = Numeral (mod x y)
+
+calculate (Plus ex1 ex2)         = Plus  (calculate ex1) (calculate ex2)
+calculate (Minus ex1 ex2)        = Minus (calculate ex1) (calculate ex2)
+calculate (Times ex1 ex2)        = Times (calculate ex1) (calculate ex2)
+calculate (Div ex1 ex2)          = Div   (calculate ex1) (calculate ex2)
+
+calculate (Gt ex1 ex2)           = Gt  (calculate ex1) (calculate ex2)
+calculate (Geq ex1 ex2)          = Geq (calculate ex1) (calculate ex2)
+calculate (Lt ex1 ex2)           = Lt  (calculate ex1) (calculate ex2)
+calculate (Leq ex1 ex2)          = Leq (calculate ex1) (calculate ex2)
+
+
+calculate st = st
+
+optimizeStatement :: Statement -> Statement
+optimizeStatement (Semicolon st1 st2) = Semicolon (optimizeStatement st1) (optimizeStatement st2)
+optimizeStatement (Read  ex)          = Read (calculate ex)
+optimizeStatement (Write ex)          = Write (calculate ex)
+optimizeStatement (IfC ex st1 st2)    = IfC (calculate ex) (optimizeStatement st1) (optimizeStatement st2)
+optimizeStatement (While ex st)       = While (calculate ex) (optimizeStatement st)
+optimizeStatement (Assign ex1 ex2)    = Assign (calculate ex1) (calculate ex2)
+optimizeStatement st = st

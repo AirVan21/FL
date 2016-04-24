@@ -1,6 +1,7 @@
 module Main where
 
 import System.IO
+import System.Environment
 
 import Syntax
 import Eval
@@ -9,11 +10,11 @@ import Parser
 import Data.Tree.Pretty
 import Data.Tree
 
-evaluate :: String -> String
-evaluate input =
+evaluate :: String -> (Statement -> Statement) -> String
+evaluate input func =
   case parseExpr input of
     Left err -> "Syntax error: " ++ show err
-    Right stmt -> buildTree stmt
+    Right stmt -> buildTree $ func stmt
 
 buildTree :: Statement -> String
 buildTree stmt = (drawVerticalTree $ buildTree' stmt) ++ "\n\n" ++ (parseTree $ buildTree' stmt)
@@ -29,19 +30,23 @@ buildTree stmt = (drawVerticalTree $ buildTree' stmt) ++ "\n\n" ++ (parseTree $ 
 
 parseTree :: Tree String -> String
 parseTree (Node label []) = label
-parseTree (Node label (x:xs)) | null xs           = label ++ " do " ++ (parseTree x) 
-                              | label == "; "     = (parseTree x) ++ label ++ (parseTree $ head xs)
-                              | otherwise         = label ++ " then " ++ (parseTree x) ++ " else " ++ (parseTree $ head xs)
-repl :: IO ()
-repl = do
+parseTree (Node label (x:xs)) | null xs       = label ++ " do " ++ (parseTree x) 
+                              | label == "; " = (parseTree x) ++ label ++ (parseTree $ head xs)
+                              | otherwise     = label ++ " then " ++ (parseTree x) ++ " else " ++ (parseTree $ head xs)
+
+repl :: (Statement -> Statement) -> IO ()
+repl mode = do
   putStr "> "
   hFlush stdout
   input <- getLine
   if input == ":q"
     then return ()
-    else putStrLn (evaluate input) >> repl
+    else putStrLn (evaluate input mode) >> (repl mode)
 
 main :: IO ()
 main = do
   putStrLn "Type :q to quit"
-  repl
+  args <- getArgs
+  case args of 
+    ["-o"] -> repl optimizeStatement
+    otherwise -> repl id

@@ -34,7 +34,6 @@ instance Show Expr where
      show (And ex1 ex2)   = show ex1 ++ " && " ++ show ex2
      show (Or ex1 ex2)    = show ex1 ++ " || " ++ show ex2
 
-
 data Statement = Assign Expr Expr
                | IfC Expr Statement Statement 
                | Write Expr
