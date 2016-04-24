@@ -1,0 +1,15 @@
+# adding/subtracting zero optimization
+
+if x + 0 > y then write 5 - 0 else read x + 0; skip
+
+# multiplication/division with 1
+
+while x * 1 < y * 1 do write y / 1
+
+# multiplication/division with 0
+
+read x * 0; y := 0 / x; skip
+
+# precalculation for operations with 2 numbers (+, -, *, /, %)
+
+read 3 * 6; x := 2 + 5; skip
