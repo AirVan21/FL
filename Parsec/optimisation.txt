@@ -12,4 +12,8 @@ read x * 0; y := 0 / x; skip
 
 # precalculation for operations with 2 numbers (+, -, *, /, %)
 
-read 3 * 6; x := 2 + 5; skip
+read 3 * 6 * 1; x := 2 + 5 + 12 + 34; skip
+
+# test optimization
+
+if x == 0 * 1 * 123 / 1 + 2 then skip else x := 0

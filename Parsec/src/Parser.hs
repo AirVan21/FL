@@ -131,23 +131,48 @@ parseExpr :: String -> Either ParseError Statement
 parseExpr = parse statement ""
 
 calculate :: Expr -> Expr
+
+-- Neutral element
 calculate (Plus ex (Numeral 0))  = calculate ex
 calculate (Plus (Numeral 0) ex)  = calculate ex
 calculate (Minus ex (Numeral 0)) = calculate ex
 calculate (Minus (Numeral 0) ex) = calculate ex
+
+-- Neutral element
 calculate (Times ex (Numeral 1)) = calculate ex
 calculate (Times (Numeral 1) ex) = calculate ex
 calculate (Div ex (Numeral 1))   = calculate ex
 
+-- Zero optimization
 calculate (Times ex (Numeral 0)) = Numeral 0
 calculate (Times (Numeral 0) ex) = Numeral 0
 calculate (Div (Numeral 0) ex)   = Numeral 0
 
+-- Simple numeric caluclation
 calculate (Plus  (Numeral x) (Numeral y))  = Numeral (x + y)
 calculate (Minus (Numeral x) (Numeral y))  = Numeral (x - y)
 calculate (Times (Numeral x) (Numeral y))  = Numeral (x * y)
 calculate (Div   (Numeral x) (Numeral y))  = Numeral (div x y)
 calculate (Mod   (Numeral x) (Numeral y))  = Numeral (mod x y)
+
+-- Associative property *
+calculate (Times (Numeral x) (Times (Numeral y) ex)) =  calculate (Times (Numeral (x * y)) (calculate ex))
+calculate (Times (Numeral x) (Times ex (Numeral y))) =  calculate (Times (Numeral (x * y)) (calculate ex))
+calculate (Times (Times (Numeral x) ex) (Numeral y)) =  calculate (Times (Numeral (x * y)) (calculate ex))
+calculate (Times (Times ex (Numeral x)) (Numeral y)) =  calculate (Times (Numeral (x * y)) (calculate ex))
+
+-- Associative property +
+calculate (Plus (Numeral x) (Plus (Numeral y) ex))   =  calculate (Plus (Numeral (x + y)) (calculate ex))
+calculate (Plus (Numeral x) (Plus ex (Numeral y)))   =  calculate (Plus (Numeral (x + y)) (calculate ex))
+calculate (Plus (Plus (Numeral x) ex) (Numeral y))   =  calculate (Plus (Numeral (x + y)) (calculate ex))
+calculate (Plus (Plus ex (Numeral x)) (Numeral y))   =  calculate (Plus (Numeral (x + y)) (calculate ex))
+
+-- Extra calculation for +/- 
+calculate (Plus (Numeral x) (Minus (Numeral y) ex)) =  calculate (Minus (Numeral (x + y)) (calculate ex))
+calculate (Plus (Minus (Numeral x) ex) (Numeral y)) =  calculate (Minus (Numeral (x + y)) (calculate ex))
+
+calculate (Eq ex1 ex2)           = Eq (calculate ex1) (calculate ex2)
+calculate (Neq ex1 ex2)          = Neq (calculate ex1) (calculate ex2)
 
 calculate (Plus ex1 ex2)         = Plus  (calculate ex1) (calculate ex2)
 calculate (Minus ex1 ex2)        = Minus (calculate ex1) (calculate ex2)
@@ -159,8 +184,11 @@ calculate (Geq ex1 ex2)          = Geq (calculate ex1) (calculate ex2)
 calculate (Lt ex1 ex2)           = Lt  (calculate ex1) (calculate ex2)
 calculate (Leq ex1 ex2)          = Leq (calculate ex1) (calculate ex2)
 
+calculate (And ex1 ex2)          = And (calculate ex1) (calculate ex2)
+calculate (Or ex1 ex2)           = Or  (calculate ex1) (calculate ex2)
 
-calculate st = st
+calculate ex = ex
+
 
 optimizeStatement :: Statement -> Statement
 optimizeStatement (Semicolon st1 st2) = Semicolon (optimizeStatement st1) (optimizeStatement st2)
